@@ -13,7 +13,7 @@ module.exports = (pool) => {
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
     const { user_id, consent } = req.body;
     try {
-      await pool.query('INSERT INTO consent (user_id, consent, created_at) VALUES ($1, $2, NOW())', [user_id, consent]);
+      await pool.query('INSERT INTO consent (user_id, "consent", created_at) VALUES ($1, $2, NOW())', [user_id, consent]);
       res.status(201).json({ success: true });
     } catch (err) {
       res.status(500).json({ error: 'Server error' });
