@@ -2,12 +2,21 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 15, // Limit each IP to 15 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many requests from this IP, please try again after 15 minutes'
+});
 
 module.exports = (pool) => {
   const router = express.Router();
 
   // POST /api/login
-  router.post('/login', [
+  router.post('/login', authLimiter, [
     body('username').isString().notEmpty(),
     body('password').isString().notEmpty()
   ], async (req, res) => {
@@ -28,7 +37,7 @@ module.exports = (pool) => {
   });
 
   // POST /api/register
-  router.post('/register', [
+  router.post('/register', authLimiter, [
     body('username').isString().notEmpty(),
     body('password').isString().isLength({ min: 6 }),
     body('email').isEmail()
